@@ -8,7 +8,7 @@ migration:
 
 .PHONY: migrate-up
 migrate-up:
-	@migrate -path $(MIGRATIONS_PATH) -database $(DATABASE_PATH) up $(word 2, $(MAKECMDGOALS))
+	@migrate -path $(MIGRATIONS_PATH) -database $(DATABASE_PATH) up
 
 .PHONY: migrate-down
 migrate-down:
