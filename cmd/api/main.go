@@ -26,6 +26,9 @@ func main() {
 		cfg.db.maxIdleConns,
 		cfg.db.maxIdleTime)
 
+	defer db.Close()
+	log.Println("database connection pool established")
+
 	if err != nil {
 		panic(err)
 	}
