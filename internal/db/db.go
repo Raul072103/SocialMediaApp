@@ -28,5 +28,5 @@ func New(addr string, maxOpenConns int, maxIdleConns int, maxIdleTime string) (*
 		return nil, err
 	}
 
-	return nil, err
+	return db, err
 }
