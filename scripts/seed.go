@@ -1,14 +1,16 @@
-package scripts
+package main
 
 import (
 	"SocialMediaApp/internal/store"
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"math/rand"
+	"time"
 )
 
-func Seed(store store.Storage) {
+func Seed(db *sql.DB, store store.Storage, flags ...string) {
 	ctx := context.Background()
 
 	users := generateUsers(100)
@@ -35,6 +37,13 @@ func Seed(store store.Storage) {
 		}
 	}
 
+	for _, flag := range flags {
+		if flag == "follow" {
+			users, err := getAllUsers(db, context.Background())
+			if
+		}
+	}
+
 	log.Println("Seeding complete")
 }
 
@@ -42,9 +51,10 @@ func generateUsers(num int) []*store.User {
 	users := make([]*store.User, num)
 
 	for i := 0; i < num; i++ {
+		timeNow := time.Now().Unix()
 		users[i] = &store.User{
-			Username: usernames[i%len(usernames)] + fmt.Sprintf("%d", i),
-			Email:    usernames[i%len(usernames)] + fmt.Sprintf("%d", i) + "@example.com",
+			Username: usernames[i%len(usernames)] + fmt.Sprintf("%d", timeNow),
+			Email:    usernames[i%len(usernames)] + fmt.Sprintf("%d", timeNow) + "@example.com",
 			Password: "123123",
 		}
 	}
@@ -86,6 +96,38 @@ func generateComments(num int, users []*store.User, posts []*store.Post) []*stor
 	}
 
 	return comments
+}
+
+func getAllUsers(db *sql.DB, ctx context.Context) ([]*store.User, error) {
+	query := `
+		SELECT id
+		FROM users 
+	`
+
+	rows, err := db.QueryContext(
+		ctx,
+		query,
+	)
+
+	if err != nil {
+		log.Fatal("Error getting users from DB for seeding")
+		return nil, err
+	}
+
+	var users []*store.User
+
+	for rows.Next() {
+		user := store.User{}
+		err := rows.Scan(&user.ID)
+		if err != nil {
+			log.Fatal("Error reading a user from DB for seeding")
+			return nil, err
+		}
+
+		users = append(users, &user)
+	}
+
+	return users, err
 }
 
 var usernames = []string{
