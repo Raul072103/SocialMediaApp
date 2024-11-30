@@ -40,7 +40,25 @@ func Seed(db *sql.DB, store store.Storage, flags ...string) {
 	for _, flag := range flags {
 		if flag == "follow" {
 			users, err := getAllUsers(db, context.Background())
-			if
+			if err != nil {
+				log.Println("Error getting all the users:", err)
+				return
+			}
+
+			for _, user := range users {
+				start := rand.Intn(len(users) - 101)
+
+				for i := start; i < start+100; i++ {
+					follower := users[i]
+					if follower.ID != user.ID {
+						err := store.Followers.Follow(context.Background(), follower.ID, user.ID)
+						if err != nil {
+							log.Println("Error following:", err)
+							return
+						}
+					}
+				}
+			}
 		}
 	}
 

@@ -19,5 +19,5 @@ func main() {
 
 	store := store2.NewStorage(database)
 
-	Seed(db, store)
+	Seed(database, store, "follow")
 }
