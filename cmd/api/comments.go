@@ -11,6 +11,20 @@ type CommentPayload struct {
 	Content string `json:"content" validate:"required,max=100"`
 }
 
+// createCommentHandler godoc
+//
+//	@Summary		Creates a comment on a user's post
+//	@Description	Creates a comment on a user's post
+//	@Tags			comments
+//	@Accept			json
+//	@Produce		json
+//
+//	@Param			payload	body		CommentPayload	true	"Comment payload"
+//	@Success		200		{string}	string			"Comment created successfully!"
+//	@Failure		400		{object}	error			"Bad request"
+//	@Failure		404		{object}	error			"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/posts/comments/ [post]
 func (app *application) createCommentHandler(w http.ResponseWriter, r *http.Request) {
 	var payload CommentPayload
 	err := readJSON(w, r, &payload)
