@@ -1,6 +1,8 @@
 package store
 
 import (
+	"fmt"
+	"github.com/lib/pq"
 	"net/http"
 	"strconv"
 	"strings"
@@ -30,7 +32,7 @@ func (fq PaginatedFeedQuery) Parse(r *http.Request) (PaginatedFeedQuery, error) 
 		fq.Limit = l
 	}
 
-	offset := qs.Get("limit")
+	offset := qs.Get("offset")
 	if offset != "" {
 		o, err := strconv.Atoi(offset)
 		if err != nil {
@@ -48,7 +50,13 @@ func (fq PaginatedFeedQuery) Parse(r *http.Request) (PaginatedFeedQuery, error) 
 	tags := qs.Get("tags")
 	if tags != "" {
 		fq.Tags = strings.Split(tags, " ")
+		for i, tag := range fq.Tags {
+			fq.Tags[i] = "#" + tag
+			fmt.Printf("Tag[%d]: %s\n", i, fq.Tags[i])
+		}
 	}
+
+	fmt.Printf("Finished tags: %v\n", pq.Array(fq.Tags))
 
 	search := qs.Get("search")
 	if search != "" {
