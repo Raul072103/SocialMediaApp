@@ -4,7 +4,7 @@ import (
 	"SocialMediaApp/internal/db"
 	"SocialMediaApp/internal/env"
 	"SocialMediaApp/internal/store"
-	"log"
+	"go.uber.org/zap"
 )
 
 const version = "0.0.2"
@@ -20,12 +20,12 @@ const version = "0.0.2"
 //	@license.name	Apache 2.0
 //	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-//	@BasePath					/v1
+// @BasePath					/v1
 //
-//	@securityDefinitions.apikey	ApiKeyAuth
-//	@in							header
-//	@name						Authorization
-//	@description
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						Authorization
+// @description
 func main() {
 	cfg := config{
 		addr: env.GetString("ADDR", ":8080"),
@@ -39,6 +39,12 @@ func main() {
 		apiURL: env.GetString("EXTERNAL_URL", "localhost:8080"),
 	}
 
+	// Logger
+	logger := zap.Must(zap.NewProduction()).Sugar()
+	defer logger.Sync()
+
+	// Database
+
 	database, err := db.New(
 		cfg.db.addr,
 		cfg.db.maxOpenConns,
@@ -46,10 +52,10 @@ func main() {
 		cfg.db.maxIdleTime)
 
 	defer database.Close()
-	log.Println("database connection pool established")
+	logger.Info("database connection pool established")
 
 	if err != nil {
-		panic(err)
+		logger.Fatal(err)
 	}
 
 	store := store.NewStorage(database)
@@ -57,8 +63,9 @@ func main() {
 	app := &application{
 		config: cfg,
 		store:  store,
+		logger: logger,
 	}
 
 	mux := app.mount()
-	log.Fatal(app.run(mux))
+	logger.Fatal(app.run(mux))
 }
