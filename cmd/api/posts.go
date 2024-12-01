@@ -20,6 +20,19 @@ type CreatePostPayload struct {
 	Tags    []string `json:"tags"`
 }
 
+// deletePostHandler godoc
+//
+//	@Summary		Deletes a post
+//	@Description	Deletes a post by ID.
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			postID	path		int		true	"Post ID"
+//	@Success		204		{string}	string	"Post deleted"
+//	@Failure		400		{object}	error	"Bad request"
+//	@Failure		404		{object}	error	"Post not found"
+//	@Security		ApiKeyAuth
+//	@Router			/posts/{postID}/ [delete]
 func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request) {
 	post := getPostFromCtx(r)
 
@@ -37,6 +50,19 @@ func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// getPostHandler godoc
+//
+//	@Summary		Retrieves a post
+//	@Description	Retrieves a post by ID.
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			postID	path		int		true	"Post ID"
+//	@Success		204		{string}	string	"Post retrieved successfully"
+//	@Failure		400		{object}	error	"Bad request"
+//	@Failure		404		{object}	error	"Post not found"
+//	@Security		ApiKeyAuth
+//	@Router			/posts/{postID}/ [get]
 func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	post := getPostFromCtx(r)
 
@@ -55,6 +81,19 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// getPostHandler godoc
+//
+//	@Summary		Creates a post
+//	@Description	Creates a post.
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload	body		CreatePostPayload	true	"Post payload"
+//	@Success		204		{string}	string				"Post created successfully"
+//	@Failure		400		{object}	error				"Bad request"
+//	@Failure		404		{object}	error				"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/posts/ [get]
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
 	var payload CreatePostPayload
 
@@ -96,6 +135,19 @@ type UpdatePostPayload struct {
 	Content *string `json:"content" validate:"omitempty,max=1000"`
 }
 
+// updatePostHandler godoc
+//
+//	@Summary		Updates a post
+//	@Description	Updates a post by ID.
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload	body		CreatePostPayload	true	"Post payload"
+//	@Success		204		{string}	string				"Post updated successfully"
+//	@Failure		400		{object}	error				"Post not found"
+//	@Failure		404		{object}	error				"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/posts/ [patch]
 func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
 	post := getPostFromCtx(r)
 
