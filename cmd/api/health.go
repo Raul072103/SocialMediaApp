@@ -29,5 +29,4 @@ func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Reques
 			log.Println("Failed writing to JSON error")
 		}
 	}
-
 }
