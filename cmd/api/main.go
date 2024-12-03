@@ -5,6 +5,7 @@ import (
 	"SocialMediaApp/internal/env"
 	"SocialMediaApp/internal/store"
 	"go.uber.org/zap"
+	"time"
 )
 
 const version = "0.0.2"
@@ -37,6 +38,9 @@ func main() {
 		},
 		env:    env.GetString("DEV", "development"),
 		apiURL: env.GetString("EXTERNAL_URL", "localhost:8080"),
+		mail: mailConfig{
+			exp: time.Hour * 24 * 3, // 3 days
+		},
 	}
 
 	// Logger
