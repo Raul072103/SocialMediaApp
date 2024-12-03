@@ -2,6 +2,7 @@ package main
 
 import (
 	"SocialMediaApp/docs"
+	"SocialMediaApp/internal/mailer"
 	"SocialMediaApp/internal/store"
 	"fmt"
 	"github.com/go-chi/chi/v5"
@@ -16,6 +17,7 @@ type application struct {
 	config config
 	store  store.Storage
 	logger *zap.SugaredLogger
+	mailer mailer.Client
 }
 
 type config struct {
@@ -34,7 +36,13 @@ type dbConfig struct {
 }
 
 type mailConfig struct {
-	exp time.Duration
+	sendGrid  sendGridConfig
+	fromEmail string
+	exp       time.Duration
+}
+
+type sendGridConfig struct {
+	apiKey string
 }
 
 func (app *application) mount() *chi.Mux {
