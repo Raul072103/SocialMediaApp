@@ -41,11 +41,15 @@ func main() {
 		apiURL: env.GetString("EXTERNAL_URL", "localhost:8080"),
 		mail: mailConfig{
 			exp:       time.Hour * 24 * 3, // 3 days
-			fromEmail: env.GetString("FROM_EMAIL", ""),
+			fromEmail: env.GetString("FROM_EMAIL", "noreply@demomailtrap.com"),
 			sendGrid: sendGridConfig{
 				apiKey: env.GetString("SENDGRID_API_KEY", ""),
 			},
+			mailTrap: mailTrapConfig{
+				apiKey: env.GetString("MAILTRAP_API_KEY", "39368e1ef343a7c84489ba5c81a79f94"),
+			},
 		},
+		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:4000"),
 	}
 
 	// Logger
@@ -69,13 +73,18 @@ func main() {
 
 	store := store.NewStorage(database)
 
-	mailer := mailer2.NewSendgrid(cfg.mail.sendGrid.apiKey, cfg.mail.fromEmail)
+	// Mailer
+	// mailer := mailer2.NewSendgrid(cfg.mail.sendGrid.apiKey, cfg.mail.fromEmail)
+	mailtrap, err := mailer2.NewMailTrapClient(cfg.mail.mailTrap.apiKey, cfg.mail.fromEmail)
+	if err != nil {
+		logger.Fatal(err)
+	}
 
 	app := &application{
 		config: cfg,
 		store:  store,
 		logger: logger,
-		mailer: mailer,
+		mailer: mailtrap,
 	}
 
 	mux := app.mount()

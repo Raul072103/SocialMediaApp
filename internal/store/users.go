@@ -126,6 +126,20 @@ func (u *userStore) CreateAndInvite(ctx context.Context, user *User, token strin
 	})
 }
 
+func (u *userStore) Delete(ctx context.Context, userID int64) error {
+	return withTransaction(u.db, ctx, func(tx *sql.Tx) error {
+		if err := u.delete(ctx, tx, userID); err != nil {
+			return err
+		}
+
+		if err := u.deleteUserInvitation(ctx, tx, userID); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
 func (u *userStore) Activate(ctx context.Context, token string) error {
 	return withTransaction(u.db, ctx, func(tx *sql.Tx) error {
 		// 1. find the user that this token belongs to
@@ -202,6 +216,16 @@ func (u *userStore) update(ctx context.Context, tx *sql.Tx, user *User) error {
 	defer cancel()
 
 	_, err := tx.ExecContext(ctx, query, user.ID, user.Username, user.Email, user.IsActive)
+	return err
+}
+
+func (u *userStore) delete(ctx context.Context, tx *sql.Tx, userID int64) error {
+	query := `DELETE FROM users WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	_, err := tx.ExecContext(ctx, query, userID)
 	return err
 }
 
