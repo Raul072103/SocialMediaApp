@@ -85,7 +85,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 	activationURL := fmt.Sprintf("%s/confirm/%s", app.config.frontendURL, plainToken)
 
-	isProdEnv := app.config.env == "production"
+	isSandbox := app.config.env == "production"
 	vars := struct {
 		Username      string
 		ActivationURL string
@@ -95,13 +95,14 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	// send mail
-	err = app.mailer.Send(mailer.UserWelcomeTemplate, user.Username, user.Email, vars, !isProdEnv)
+	err = app.mailer.Send(mailer.UserWelcomeTemplate, user.Username, user.Email, vars, !isSandbox)
 	if err != nil {
 		app.logger.Errorw("error sending welcome email", "error", err)
 
 		// rollback user creation if email fails (SAGA pattern)
 		if err := app.store.Users.Delete(ctx, user.ID); err != nil {
 			app.logger.Errorw("error deleting user", "error", err)
+			return
 		}
 
 		app.internalServerError(w, r, err)

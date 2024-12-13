@@ -40,6 +40,7 @@ type mailConfig struct {
 	sendGrid  sendGridConfig
 	mailTrap  mailTrapConfig
 	fromEmail string
+	toEmail   string
 	exp       time.Duration
 }
 
