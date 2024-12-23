@@ -50,7 +50,7 @@ func main() {
 				apiKey: env.GetString("MAILTRAP_API_KEY", "39368e1ef343a7c84489ba5c81a79f94"),
 			},
 		},
-		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:4000"),
+		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:5174"),
 	}
 
 	// Logger
