@@ -76,7 +76,7 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			userID	path		int			true	"User ID"
-//	@Param			payload	body		FollowUser	true	"Follower ID"
+//	@Param			payload	body		store.User	true	"Follower ID"
 //	@Success		204		{string}	string		"User unfollowed"
 //	@Failure		400		{object}	error		"User payload missing"
 //	@Failure		404		{object}	error		"User not found"
@@ -111,7 +111,7 @@ func (app *application) unfollowUserHandler(w http.ResponseWriter, r *http.Reque
 //	@Accept			json
 //	@Produce		json
 //	@Param			userID	path		int			true	"User ID"
-//	@Param			payload	body		FollowUser	true	"Follower ID"
+//	@Param			payload	body		store.User	true	"Follower ID"
 //	@Success		204		{string}	string		"User followed"
 //	@Failure		400		{object}	error		"User payload missing"
 //	@Failure		404		{object}	error		"User not found"

@@ -81,7 +81,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getPostHandler godoc
+// createPostHandler godoc
 //
 //	@Summary		Creates a post
 //	@Description	Creates a post.
@@ -93,7 +93,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400		{object}	error				"Bad request"
 //	@Failure		404		{object}	error				"Internal server error"
 //	@Security		ApiKeyAuth
-//	@Router			/posts/ [get]
+//	@Router			/posts/ [post]
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
 	var payload CreatePostPayload
 
@@ -143,12 +143,13 @@ type UpdatePostPayload struct {
 //	@Tags			posts
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload	body		CreatePostPayload	true	"Post payload"
+//	@Param			postID	path		int					true	"Post ID"
+//	@Param			payload	body		UpdatePostPayload	true	"Post payload"
 //	@Success		204		{string}	string				"Post updated successfully"
 //	@Failure		400		{object}	error				"Post not found"
 //	@Failure		404		{object}	error				"Internal server error"
 //	@Security		ApiKeyAuth
-//	@Router			/posts/ [patch]
+//	@Router			/posts/{postID}/ [patch]
 func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
 	post := getPostFromCtx(r)
 
