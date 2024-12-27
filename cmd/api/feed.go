@@ -22,7 +22,7 @@ import (
 //	@Failure		400		{object}	error		"Bad request"
 //	@Failure		404		{object}	error		"Internal server error"
 //	@Security		ApiKeyAuth
-//	@Router			/users/feed [delete]
+//	@Router			/users/feed [get]
 func (app *application) getUserFeedHandler(w http.ResponseWriter, r *http.Request) {
 	// pagination, filters, sort
 	fq := store.PaginatedFeedQuery{

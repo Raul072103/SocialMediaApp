@@ -1,6 +1,7 @@
 package main
 
 import (
+	"SocialMediaApp/internal/auth"
 	"SocialMediaApp/internal/db"
 	"SocialMediaApp/internal/env"
 	mailer2 "SocialMediaApp/internal/mailer"
@@ -51,6 +52,17 @@ func main() {
 			},
 		},
 		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:5174"),
+		auth: authConfig{
+			basic: basicConfig{
+				user: env.GetString("AUTH_BASIC_USER", "admin"),
+				pass: env.GetString("AUTH_BASIC_PASS", "admin"),
+			},
+			token: tokenConfig{
+				secret: env.GetString("AUTH_TOKEN_SECRET", "example"),
+				exp:    time.Hour * 24 * 3, // 3 days
+				iss:    "raulsocialmedia",
+			},
+		},
 	}
 
 	// Logger
@@ -58,7 +70,6 @@ func main() {
 	defer logger.Sync()
 
 	// Database
-
 	database, err := db.New(
 		cfg.db.addr,
 		cfg.db.maxOpenConns,
@@ -75,17 +86,22 @@ func main() {
 	store := store.NewStorage(database)
 
 	// Mailer
-	// mailer := mailer2.NewSendgrid(cfg.mail.sendGrid.apiKey, cfg.mail.fromEmail)
 	mailtrap, err := mailer2.NewMailTrapClient(cfg.mail.mailTrap.apiKey, cfg.mail.fromEmail, cfg.mail.toEmail)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
+	jwtAuthenticator := auth.NewJWTAuthenticator(
+		cfg.auth.token.secret,
+		cfg.auth.token.iss,
+		cfg.auth.token.iss)
+
 	app := &application{
-		config: cfg,
-		store:  store,
-		logger: logger,
-		mailer: mailtrap,
+		config:        cfg,
+		store:         store,
+		logger:        logger,
+		mailer:        mailtrap,
+		authenticator: jwtAuthenticator,
 	}
 
 	mux := app.mount()
