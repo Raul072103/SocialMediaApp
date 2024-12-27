@@ -72,12 +72,12 @@ func Seed(db *sql.DB, store store.Storage, flags ...string) {
 
 func generateUsers(num int) []*store.User {
 	users := make([]*store.User, num)
-
 	for i := 0; i < num; i++ {
 		timeNow := time.Now().Unix()
 		users[i] = &store.User{
 			Username: usernames[i%len(usernames)] + fmt.Sprintf("%d", timeNow),
 			Email:    usernames[i%len(usernames)] + fmt.Sprintf("%d", timeNow) + "@example.com",
+			RoleID:   1,
 		}
 	}
 

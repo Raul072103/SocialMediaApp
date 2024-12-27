@@ -41,11 +41,6 @@ definitions:
     - email
     - password
     type: object
-  main.FollowUser:
-    properties:
-      user_id:
-        type: integer
-    type: object
   main.RegisterUserPayload:
     properties:
       email:
@@ -63,6 +58,15 @@ definitions:
     - password
     - username
     type: object
+  main.UpdatePostPayload:
+    properties:
+      content:
+        maxLength: 1000
+        type: string
+      title:
+        maxLength: 100
+        type: string
+    type: object
   main.UserWithToken:
     properties:
       created_at:
@@ -73,9 +77,24 @@ definitions:
         type: integer
       is_active:
         type: boolean
+      role:
+        $ref: '#/definitions/store.Role'
+      role_id:
+        type: integer
       token:
         type: string
       username:
+        type: string
+    type: object
+  store.Role:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      level:
+        type: integer
+      name:
         type: string
     type: object
   store.User:
@@ -88,6 +107,10 @@ definitions:
         type: integer
       is_active:
         type: boolean
+      role:
+        $ref: '#/definitions/store.Role'
+      role_id:
+        type: integer
       username:
         type: string
     type: object
@@ -184,7 +207,7 @@ paths:
       tags:
       - health
   /posts/:
-    get:
+    post:
       consumes:
       - application/json
       description: Creates a post.
@@ -211,35 +234,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Creates a post
-      tags:
-      - posts
-    patch:
-      consumes:
-      - application/json
-      description: Updates a post by ID.
-      parameters:
-      - description: Post payload
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/main.CreatePostPayload'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: Post updated successfully
-          schema:
-            type: string
-        "400":
-          description: Post not found
-          schema: {}
-        "404":
-          description: Internal server error
-          schema: {}
-      security:
-      - ApiKeyAuth: []
-      summary: Updates a post
       tags:
       - posts
   /posts/{postID}/:
@@ -297,6 +291,40 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Retrieves a post
+      tags:
+      - posts
+    patch:
+      consumes:
+      - application/json
+      description: Updates a post by ID.
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      - description: Post payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdatePostPayload'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Post updated successfully
+          schema:
+            type: string
+        "400":
+          description: Post not found
+          schema: {}
+        "404":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Updates a post
       tags:
       - posts
   /posts/comments/:
@@ -379,7 +407,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/main.FollowUser'
+          $ref: '#/definitions/store.User'
       produces:
       - application/json
       responses:
@@ -414,7 +442,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/main.FollowUser'
+          $ref: '#/definitions/store.User'
       produces:
       - application/json
       responses:
