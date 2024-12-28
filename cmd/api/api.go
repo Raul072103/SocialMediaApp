@@ -4,6 +4,7 @@ import (
 	"SocialMediaApp/docs"
 	"SocialMediaApp/internal/auth"
 	"SocialMediaApp/internal/mailer"
+	"SocialMediaApp/internal/ratelimiter"
 	"SocialMediaApp/internal/store"
 	"SocialMediaApp/internal/store/cache"
 	"context"
@@ -28,6 +29,7 @@ type application struct {
 	logger        *zap.SugaredLogger
 	mailer        mailer.Client
 	authenticator auth.Authenticator
+	rateLimiter   ratelimiter.Limiter
 }
 
 type config struct {
@@ -39,6 +41,7 @@ type config struct {
 	frontendURL string
 	auth        authConfig
 	redisCfg    redisConfig
+	rateLimiter ratelimiter.Config
 }
 
 type redisConfig struct {
@@ -105,6 +108,7 @@ func (app *application) mount() *chi.Mux {
 	mux.Use(middleware.RealIP)
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
+	mux.Use(app.RateLimiterMiddleware)
 
 	mux.Use(middleware.Timeout(60 * time.Second))
 
