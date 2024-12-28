@@ -8,8 +8,10 @@ import (
 	"SocialMediaApp/internal/ratelimiter"
 	"SocialMediaApp/internal/store"
 	cache2 "SocialMediaApp/internal/store/cache"
+	"expvar"
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
+	"runtime"
 	"time"
 )
 
@@ -133,6 +135,15 @@ func main() {
 		authenticator: jwtAuthenticator,
 		rateLimiter:   rateLimiter,
 	}
+
+	// Metrics collected
+	expvar.NewString("version").Set(version)
+	expvar.Publish("database", expvar.Func(func() any {
+		return database.Stats()
+	}))
+	expvar.Publish("goroutines", expvar.Func(func() any {
+		return runtime.NumGoroutine()
+	}))
 
 	mux := app.mount()
 	logger.Fatal(app.run(mux))

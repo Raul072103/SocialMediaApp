@@ -9,6 +9,7 @@ import (
 	"SocialMediaApp/internal/store/cache"
 	"context"
 	"errors"
+	"expvar"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -113,7 +114,9 @@ func (app *application) mount() *chi.Mux {
 	mux.Use(middleware.Timeout(60 * time.Second))
 
 	mux.Route("/v1", func(r chi.Router) {
-		r.With(app.BasicAuthMiddleware()).Get("/health", app.healthCheckHandler)
+		// Operations
+		r.Get("/health", app.healthCheckHandler)
+		r.With(app.BasicAuthMiddleware()).Get("/debug/vars", expvar.Handler().ServeHTTP)
 
 		docsUrl := fmt.Sprintf("%s/swagger/doc.json", app.config.addr)
 		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsUrl)))
