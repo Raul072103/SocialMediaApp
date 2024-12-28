@@ -70,8 +70,6 @@ func (u *userStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
 			return ErrDuplicateEmail
 		case err.Error() == `pq: duplicate key value violates unique constraint "users_username_key"`:
 			return ErrDuplicateUsername
-		default:
-			return err
 		}
 
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
