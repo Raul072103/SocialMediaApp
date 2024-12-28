@@ -5,10 +5,13 @@ import (
 	"SocialMediaApp/internal/db"
 	"SocialMediaApp/internal/env"
 	mailer2 "SocialMediaApp/internal/mailer"
+	"SocialMediaApp/internal/ratelimiter"
 	"SocialMediaApp/internal/store"
 	cache2 "SocialMediaApp/internal/store/cache"
+	"expvar"
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
+	"runtime"
 	"time"
 )
 
@@ -71,6 +74,11 @@ func main() {
 				iss:    "raulsocialmedia",
 			},
 		},
+		rateLimiter: ratelimiter.Config{
+			RequestPerTimeFrame: env.GetInt("RATE_LIMITER_REQUESTS_COUNT", 20),
+			TimeFrame:           time.Second * 5,
+			Enabled:             env.GetBool("RATE_LIMITER_ENABLED", true),
+		},
 	}
 
 	// Logger
@@ -98,6 +106,12 @@ func main() {
 		logger.Fatal(err)
 	}
 
+	// Rate limiter
+	rateLimiter := ratelimiter.NewFixedWindowLimiter(
+		cfg.rateLimiter.RequestPerTimeFrame,
+		cfg.rateLimiter.TimeFrame,
+	)
+
 	store := store.NewStorage(database)
 	cacheStorage := cache2.NewRedisStorage(redisDB)
 
@@ -119,7 +133,17 @@ func main() {
 		logger:        logger,
 		mailer:        mailtrap,
 		authenticator: jwtAuthenticator,
+		rateLimiter:   rateLimiter,
 	}
+
+	// Metrics collected
+	expvar.NewString("version").Set(version)
+	expvar.Publish("database", expvar.Func(func() any {
+		return database.Stats()
+	}))
+	expvar.Publish("goroutines", expvar.Func(func() any {
+		return runtime.NumGoroutine()
+	}))
 
 	mux := app.mount()
 	logger.Fatal(app.run(mux))
