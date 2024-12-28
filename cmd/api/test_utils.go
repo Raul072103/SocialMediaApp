@@ -2,6 +2,7 @@ package main
 
 import (
 	"SocialMediaApp/internal/auth"
+	"SocialMediaApp/internal/ratelimiter"
 	"SocialMediaApp/internal/store"
 	"SocialMediaApp/internal/store/cache"
 	"github.com/go-chi/chi/v5"
@@ -11,7 +12,7 @@ import (
 	"testing"
 )
 
-func newTestApplication(t *testing.T) *application {
+func newTestApplication(t *testing.T, cfg config) *application {
 	t.Helper()
 
 	//logger := zap.NewNop().Sugar()
@@ -21,11 +22,19 @@ func newTestApplication(t *testing.T) *application {
 
 	testAuth := &auth.TestAuthenticator{}
 
+	// Rate limiter
+	rateLimiter := ratelimiter.NewFixedWindowLimiter(
+		cfg.rateLimiter.RequestPerTimeFrame,
+		cfg.rateLimiter.TimeFrame,
+	)
+
 	return &application{
 		logger:        logger,
 		store:         mockStore,
 		cacheStorage:  mockCacheStore,
 		authenticator: testAuth,
+		config:        cfg,
+		rateLimiter:   rateLimiter,
 	}
 }
 
@@ -34,4 +43,5 @@ func executeRequest(req *http.Request, mux *chi.Mux) *httptest.ResponseRecorder 
 	mux.ServeHTTP(rr, req)
 
 	return rr
+
 }
